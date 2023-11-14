@@ -1,16 +1,18 @@
 {
-  "name": "b2014759_tranleminh_ct449_backend",
+  "name": "contactbook-backend",
   "version": "1.0.0",
-  "description": "BTL_CT449",
+  "description": "",
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js"
   },
-  "author": "Tran Le Minh",
+  "author": "Minh Tran",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "mongodb": "^6.1.0",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
