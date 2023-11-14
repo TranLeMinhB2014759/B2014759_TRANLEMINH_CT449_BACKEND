@@ -1,12 +1,12 @@
 {
-  "name": "contactbook-backend",
+  "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "\"# B2014759_TRANLEMINH_BACKEND\"",
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js"
   },
-  "author": "Minh Tran",
+  "author": "Tran Le Minh",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
