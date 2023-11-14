@@ -7,27 +7,16 @@ class ContactService {
     }
     extractContactData(payload) {
         const contact = {
-            name: payload.name,
-            email: payload.email,
-            address: payload.address,
-            phone: payload.phone,
-            favorite: payload.favorite,
+            HotenKH: payload.HotenKH,
+            Password: payload.Password,
+            DiaChi: payload.DiaChi,
+            SoDienThoai: payload.SoDienThoai,
         };
         // Remove undefined fields
         Object.keys(contact).forEach(
             (key) => contact[key] === undefined && delete contact[key]
             );
         return contact;
-    }
-    
-    async create(payload) {
-        const contact = this.extractContactData(payload);
-        const result = await this.Contact.findOneAndUpdate(
-            contact,
-            { $set: { favorite: contact.favorite === true } },
-            { returnDocument: "after", upsert: true }
-        );
-        return result;
     }
 
     async findByName(name) {
@@ -65,10 +54,6 @@ class ContactService {
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         });
         return result;
-    }
-
-    async findFavorite() {
-        return await this.find({ favorite: true });
     }
 
     async deleteAll() {
