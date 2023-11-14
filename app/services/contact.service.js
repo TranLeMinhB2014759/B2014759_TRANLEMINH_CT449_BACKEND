@@ -19,9 +19,19 @@ class ContactService {
         return contact;
     }
 
-    async findByName(name) {
+    async create(payload) {
+        const contact = this.extractConactData(payload);
+        const result = await this.Contact.findOneAndUpdate(
+          { HotenKH: contact.HotenKH },
+          { $setOnInsert: contact },
+          { returnDocument: "after", upsert: true }
+        );
+        return result;
+      }
+
+    async findByName(HotenKH) {
         return await this.find({
-            name: { $regex: new RegExp(name), $options: "i" },
+            HotenKH: { $regex: new RegExp(HotenKH), $options: "i" },
         });
     }
     

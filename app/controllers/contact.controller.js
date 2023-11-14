@@ -5,10 +5,10 @@ const ApiError = require ("../api-error");
 
 // Create and Save a new Contact
 exports.create = async (req, res, next) => {
-    if (!req.body?.name) {
+    if (!req.body?.HotenKH) {
         // console.log(req.body,params);
         return next (
-            new ApiError(400, "Name can not be empty")
+            new ApiError(400, "HotenKH can not be empty")
         );
     }
 
@@ -29,9 +29,9 @@ exports.findAll = async (req, res, next) => {
 
     try {
         const contactService = new ContactService(MongoDB.client);
-        const { name } = req.query;
-        if (name) {
-            documents = await contactService.findByName(name);
+        const { HotenKH } = req.query;
+        if (HotenKH) {
+            documents = await contactService.findByName(HotenKH);
         }else{
             documents = await contactService.find({});
         }
