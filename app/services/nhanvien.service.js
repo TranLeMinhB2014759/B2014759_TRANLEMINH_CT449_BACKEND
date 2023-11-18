@@ -35,6 +35,7 @@ class EmployeeService {
           password: employee.password,
           role: employee.role,
           chucVu: employee.chucVu,
+          imgURL: employee.imgURL
         },
       },
       { returnDocument: "after", upsert: true }

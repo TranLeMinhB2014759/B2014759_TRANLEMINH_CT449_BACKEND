@@ -37,6 +37,7 @@ class UserService {
           email: user.email,
           password: user.password,
           role: user.role,
+          imgURL: user.imgURL,
         },
       },
       { returnDocument: "after", upsert: true }
