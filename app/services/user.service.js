@@ -16,6 +16,7 @@ class UserService {
       address: payload.address,
       phoneNumber: payload.phoneNumber,
       role: payload.role || "user",
+      imgURL: payload.imgURL,
       token: payload.token || null, // Thêm trường token
     };
 

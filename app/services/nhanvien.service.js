@@ -13,6 +13,7 @@ class EmployeeService {
       address: payload.address,
       phoneNumber: payload.phoneNumber,
       role: payload.role || "employee",
+      imgURL: payload.imgURL,
       // token: payload.token || null,
     };
 
