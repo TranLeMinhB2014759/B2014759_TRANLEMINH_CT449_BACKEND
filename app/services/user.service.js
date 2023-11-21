@@ -8,13 +8,12 @@ class UserService {
 
   extractUserData(payload) {
     // Trong extractUserData method
-    // Trong extractUserData method
     const user = {
       name: payload.name,
       email: payload.email,
       password: payload.password,
-      address: payload.address,
-      phoneNumber: payload.phoneNumber,
+      // address: payload.address,
+      // phoneNumber: payload.phoneNumber,
       role: payload.role || "user",
       imgURL: payload.imgURL,
       token: payload.token || null, // Thêm trường token
@@ -64,26 +63,29 @@ class UserService {
 
   async update(id, payload) {
     // Cap nhat thong tin nguoi dung
-    const filter = { _id: new ObjectId(id) };
-    const update = { $set: payload };
-    const result = await this.Users.findOneAndUpdate(filter, update, {
-      returnOriginal: false,
-    });
-    return result.value;
+    const filter = {
+      _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
+  };
+    const update = this.extractUserData(payload);
+    const result = await this.Users.findOneAndUpdate(
+      filter, 
+      { $set: update },
+      { returnDocument: "after" }
+    );
+    return result;
   }
+
   async delete(id) {
     const result = await this.Users.findOneAndDelete({
       _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
     });
-    return result.value;
+    return result;
   }
   async deleteAll() {
     const result = await this.Users.deleteMany({});
     return result.deletedCount;
   }
 
-
-  
   async login(email, password) {
     let user  =  null;
       user = await this.Users.findOne({ email });

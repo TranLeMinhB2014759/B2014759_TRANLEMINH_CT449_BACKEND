@@ -39,7 +39,7 @@ exports.update = async (req, res, next) => {
   }
   try {
     const userService = new UserService(MongoDB.client);
-    const document = await userService.updateUser(req.params.id, req.body);
+    const document = await userService.update(req.params.id, req.body);
     if (!document) {
       return next(new ApiError(404, "User not found"));
     }
@@ -54,7 +54,7 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   try {
     const userService = new UserService(MongoDB.client);
-    const document = await userService.deleteUser(req.params.id);
+    const document = await userService.delete(req.params.id);
     if (!document) {
       return next(new ApiError(404, "User not found"));
     }
