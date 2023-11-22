@@ -6,12 +6,14 @@ router
   .route("/")
   .get(carts.findAll)
   .post(carts.create)
+  .delete(carts.deleteAll);
   
-  .delete(carts.delete);
+  
   router
   .route("/:id")
   .put(carts.update)
   .get(carts.findOne)
+  .delete(carts.delete);
   
 
 module.exports = router;

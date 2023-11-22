@@ -74,33 +74,51 @@ exports.delete = async (req, res, next) => {
     );
   }
 };
+exports.deleteAll = async (req, res, next) => {
+  try {
+    const cartService = new CartService(MongoDB.client);
+    const result = await cartService.deleteAll();
+    
+    // Kiểm tra xem có bản ghi nào bị xóa không
+    if (result.deletedCount === 0) {
+      return res.send({ message: "No cart items found to delete" });
+    }
+
+    return res.send({ message: "All cart items were deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "An error occurred while deleting all cart items"));
+  }
+};
+
 
 
 
 exports.findAll = async (req, res, next) => {
   try {
     const cartService = new CartService(MongoDB.client);
-    const { IdUser } = req.query;
 
-    let documents = [];
+    const documents = await cartService.findAllCart();
+    
+    const result = await Promise.all(
+      documents.map(async (doc) => {
+        const user = await cartService.getUserDetailsById(doc.IdUser);
+        const product = await cartService.getProductDetailsById(doc.IdHangHoa);
 
-    if (IdUser) {
-      // If IdUser is provided, filter cart items by IdUser
-      documents = await cartService.findAll({ IdUser });
-    } else {
-      // If IdUser is not provided, retrieve all cart items
-      documents = await cartService.findAll();
-    }
-
-    if (!documents || documents.length === 0) {
-      return res.status(404).json({ message: "Cart items not found" });
-    }
-
-    return res.send(documents);
+        return {
+          ...doc,
+          userDetails: user,
+          productDetails: product,
+        };
+      })
+    );
+    return res.send(result);
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "An error occurred while retrieving cart items"));
   }
 };
+
+
 
 

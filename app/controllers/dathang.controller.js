@@ -1,22 +1,20 @@
 const { ObjectId } = require("mongodb");
 const ApiError = require("../api-error");
-const OrderService = require("../services/dathang.service"); // Đổi tên service
+const OrderService = require("../services/dathang.service"); 
 const MongoDB = require("../utils/mongodb.util");
 
 exports.create = async (req, res, next) => {
-  if (!req.body?.SoDonDH) {
+  if (!req.body?.MSKH || !req.body?.MSNV) {
     return next(new ApiError(400, "Số đơn đặt hàng là trường bắt buộc"));
   }
 
   try {
-    const orderService = new OrderService(MongoDB.client); // Đổi tên service
-    const document = await orderService.create(req.body); // Đổi tên service
+    const orderService = new OrderService(MongoDB.client);
+    const document = await orderService.create(req.body);
     return res.send(document);
   } catch (error) {
     console.log(error);
-    return next(
-      new ApiError(500, "An error occurred while creating an order")
-    );
+    return next(new ApiError(500, "An error occurred while creating an order"));
   }
 };
 
@@ -71,23 +69,27 @@ exports.delete = async (req, res, next) => {
 };
 
 exports.findAll = async (req, res, next) => {
-  let documents = [];
-
   try {
-    const orderService = new OrderService(MongoDB.client); // Đổi tên service
-    const { SoDonDH } = req.query; // Đổi tên trường tìm kiếm
+    const orderService = new OrderService(MongoDB.client);
 
-    if (SoDonDH) {
-      documents = await orderService.findBySoDonDH(SoDonDH); // Đổi tên service và phương thức
-    } else {
-      documents = await orderService.find({}); // Đổi tên service
-    }
+    const documents = await orderService.findAllOrder();
+
+    const result = await Promise.all(
+      documents.map(async (doc) => {
+        const user = await orderService.findCustomerId(doc.MSKH);
+        const employee = await orderService.findEmployeeIdBy(doc.MSNV);
+
+        return {
+          ...doc,
+          customerInfo: user,
+          employeeInfo: employee,
+        };
+      })
+    );
+
+    return res.send(result);
   } catch (error) {
     console.log(error);
-    return next(
-      new ApiError(500, "An error occurred while retrieving orders")
-    );
+    return next(new ApiError(500, "An error occurred while retrieving order items"));
   }
-
-  return res.send(documents);
 };

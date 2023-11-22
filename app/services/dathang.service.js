@@ -3,11 +3,12 @@ const { ObjectId } = require("mongodb");
 class OrderService {
   constructor(client) {
     this.Orders = client.db().collection("DatHang");
+    this.Employees = client.db().collection("NhanVien");
+    this.Users = client.db().collection("KhachHang");
   }
 
   extractOrderData(payload) {
     const order = {
-      SoDonDH: payload.SoDonDH,
       MSKH: payload.MSKH,
       MSNV: payload.MSNV,
       NgayDH: payload.NgayDH,
@@ -43,11 +44,77 @@ class OrderService {
     return await cursor.toArray();
   }
 
-  async findById(id) {
-    return await this.Orders.findOne({
-      _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
-    });
+  async findAllOrder() {
+    try {
+      const cursor = await this.Orders.aggregate([
+        {
+          $lookup: {
+            from: "KhachHang", // Customers collection
+            localField: "MSKH",
+            foreignField: "_id",
+            as: "customerInfo",
+          },
+        },
+        {
+          $lookup: {
+            from: "NhanVien", // Employees collection
+            localField: "MSNV",
+            foreignField: "_id",
+            as: "employeeInfo",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            MSKH: 1,
+            MSNV: 1,
+            NgayDH: 1,
+            NgayGH: 1,
+            TrangthaiDH: 1,
+            customerInfo: {
+              $arrayElemAt: ["$customerInfo", 0],
+            },
+            employeeInfo: {
+              $arrayElemAt: ["$employeeInfo", 0],
+            },
+          },
+        },
+      ]);
+
+      const result = await cursor.toArray();
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred while fetching order details");
+    }
   }
+
+  async findCustomerId(userId) {
+    try {
+      const user = await this.Users.findOne({ _id: new ObjectId(userId) });
+      return user;
+    } catch (error) {
+      console.error("An error occurred while fetching user details");
+      throw error;
+    }
+  }
+
+ // In OrderService class
+async findEmployeeIdBy(employeeId) {
+  try {
+    // Convert the employeeId to a valid ObjectId before querying the database
+    const employeeObjectId = ObjectId.isValid(employeeId) ? new ObjectId(employeeId) : null;
+    
+    const employee = await this.Employees.findOne({ _id: employeeObjectId });
+
+    return employee;
+  } catch (error) {
+    console.error("An error occurred while fetching employee details");
+    throw error;
+  }
+}
+
+  
 
   async update(id, payload) {
     const filter = {

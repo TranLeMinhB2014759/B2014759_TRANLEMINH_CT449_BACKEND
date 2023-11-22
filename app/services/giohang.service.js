@@ -3,7 +3,7 @@ const { ObjectId } = require("mongodb");
 class CartService {
   constructor(client) {
     this.Carts = client.db().collection("Giohang");
-    this.Users = client.db().collection("khachHang");
+    this.Users = client.db().collection("KhachHang");
     this.Products = client.db().collection("HangHoa");
   }
 
@@ -12,6 +12,7 @@ class CartService {
       IdUser: payload.IdUser,
       IdHangHoa: payload.IdHangHoa,
       SoLuong: payload.SoLuong,
+      
     };
 
     // Remove fields with undefined values
@@ -38,189 +39,6 @@ class CartService {
     }
   }
 
-  // async findIdUser(IdUser) {
-  //   try {
-  //     const aggregationPipeline = [
-  //       {
-  //         $match: { IdUser: ObjectId(IdUser) },
-  //       },
-  //       {
-  //         $lookup: {
-  //           from: "khachHang", // Name of the khachHang collection
-  //           localField: "IdUser",
-  //           foreignField: "UserId",
-  //           as: "user",
-  //         },
-  //       },
-  //       {
-  //         $lookup: {
-  //           from: "HangHoa", // Name of the HangHoa collection
-  //           localField: "IdHangHoa",
-  //           foreignField: "_id",
-  //           as: "product",
-  //         },
-  //       },
-  //       {
-  //         $unwind: "$user",
-  //       },
-  //       {
-  //         $unwind: "$product",
-  //       },
-  //       {
-  //         $project: {
-  //           _id: 1,
-  //           IdUser: 1,
-  //           IdHangHoa: 1,
-  //           SoLuong: 1,
-  //           user: {
-  //             UserId: 1,
-  //             // Add other fields from khachHang collection as needed
-  //           },
-  //           product: {
-  //             // Add fields from HangHoa collection as needed
-  //           },
-  //         },
-  //       },
-  //     ];
-
-  //     const documents = await this.Carts.aggregate(
-  //       aggregationPipeline
-  //     ).toArray();
-
-  //     return documents;
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new Error("An error occurred while finding user cart by user ID");
-  //   }
-  // }
-
-  // async findIdHangHoa(IdHangHoa) {
-  //   try {
-  //     const aggregationPipeline = [
-  //       {
-  //         $match: { IdHangHoa: ObjectId(IdHangHoa) },
-  //       },
-  //       {
-  //         $lookup: {
-  //           from: "khachHang", // Name of the khachHang collection
-  //           localField: "IdUser",
-  //           foreignField: "UserId",
-  //           as: "user",
-  //         },
-  //       },
-  //       {
-  //         $lookup: {
-  //           from: "HangHoa", // Name of the HangHoa collection
-  //           localField: "IdHangHoa",
-  //           foreignField: "_id",
-  //           as: "product",
-  //         },
-  //       },
-  //       {
-  //         $unwind: "$user",
-  //       },
-  //       {
-  //         $unwind: "$product",
-  //       },
-  //       {
-  //         $project: {
-  //           _id: 1,
-  //           IdUser: 1,
-  //           IdHangHoa: 1,
-  //           SoLuong: 1,
-  //           user: {
-  //             UserId: 1,
-  //             // Add other fields from khachHang collection as needed
-  //           },
-  //           product: {
-  //             // Add fields from HangHoa collection as needed
-  //           },
-  //         },
-  //       },
-  //     ];
-
-  //     const documents = await this.Carts.aggregate(
-  //       aggregationPipeline
-  //     ).toArray();
-
-  //     return documents;
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new Error("An error occurred while finding cart items by product ID");
-  //   }
-  // }
-
-  async findAll(filter = {}) {
-    try {
-      const aggregationPipeline = [
-        {
-          $match: filter,
-        },
-        {
-          $lookup: {
-            from: "khachHang",
-            localField: "IdUser",
-            foreignField: "UserId",
-            as: "user",
-          },
-        },
-        {
-          $lookup: {
-            from: "HangHoa",
-            localField: "IdHangHoa",
-            foreignField: "_id",
-            as: "product",
-          },
-        },
-        {
-          $unwind: {
-            path: "$user",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $unwind: {
-            path: "$product",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            IdUser: 1,
-            IdHangHoa: 1,
-            SoLuong: 1,
-            user: {
-              UserId: "$user.UserId",
-              name: "$user.name",
-              email: "$user.email",
-              address: "$user.address",
-              phoneNumber: "$user.phoneNumber",
-              role: "$user.role",
-              imgURL: "$user.imgURL",
-            },
-            product: {
-              TenHH: "$product.TenHH",
-              MoTaHH: "$product.MoTaHH",
-              Gia: "$product.Gia",
-              SoLuongHangHoa: "$product.SoLuongHangHoa",
-              GhiChu: "$product.GhiChu",
-              imgURL: "$product.imgURL",
-            },
-          },
-        },
-      ];
-
-      const documents = await this.Carts.aggregate(
-        aggregationPipeline
-      ).toArray();
-      return documents;
-    } catch (error) {
-      console.log(error);
-      throw new Error("An error occurred while finding all cart items");
-    }
-  }
-
   async find(filter) {
     const cursor = await this.Carts.find(filter);
     return await cursor.toArray();
@@ -231,6 +49,73 @@ class CartService {
       _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
     });
   }
+  async findAllCart() {
+    try {
+      const cursor = await this.Carts.aggregate([
+        
+        {
+          $lookup: {
+            from: "KhachHang", // Users collection
+            localField: "IdUser",
+            foreignField: "_id",
+            as: "userDetails",
+          },
+        },
+        {
+          $lookup: {
+            from: "HangHoa", // Products collection
+            localField: "IdHangHoa",
+            foreignField: "_id",
+            as: "productDetails",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            IdUser: 1,
+            IdHangHoa: 1,
+            SoLuong: 1,
+            name: 1,
+            address: 1,
+            userDetails: {
+              $arrayElemAt: ["$userDetails", 0],
+            },
+            productDetails: {
+              $arrayElemAt: ["$productDetails", 0],
+            },
+          },
+        },
+      ]);
+
+      const result = await cursor.toArray();
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred while fetching cart details");
+    }
+  }
+  async getUserDetailsById(userId) {
+    try {
+      const user = await this.Users.findOne({ _id: new ObjectId(userId) });
+      return user;
+    } catch (error) {
+      console.error("An error occurred while fetching user details");
+      throw error;
+    }
+  }
+  
+
+  
+  async getProductDetailsById(productId) {
+    try {
+      const product = await this.Products.findOne({ _id: new ObjectId(productId) });
+      return product;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred while fetching product details");
+    }
+  }
+  
 
   async update(id, payload) {
     const filter = {
@@ -251,6 +136,16 @@ class CartService {
     });
     return result;
   }
+  async deleteAll() {
+    try {
+      const result = await this.Carts.deleteMany({});
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred while deleting all cart items");
+    }
+  }
+  
 }
 
 module.exports = CartService;

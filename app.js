@@ -2,18 +2,16 @@
 const express = require("express");
 const cors = require("cors");
 // Import các lớp dịch vụ cho các bảng dữ liệu
-
 const UserSRouter = require("./app/routes/user.route");
 const ProductSRouter = require("./app/routes/hanghoa.route");
 const EmployeeSRouter = require("./app/routes/nhanvien.route");
 const OrderSRouter = require("./app/routes/dathang.route");
 const DetailsRouter = require("./app/routes/chitietdathang.route");
-
+const CartSRouter = require("./app/routes/giohang.route");
 
 const ApiError = require("./app/api-error");
 
 const app = express();
-
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +21,7 @@ app.use("/api/products", ProductSRouter);
 app.use("/api/employees", EmployeeSRouter);
 app.use("/api/orders", OrderSRouter);
 app.use("/api/details", DetailsRouter);
+app.use("/api/carts", CartSRouter);
 
 
 // Xử lý lỗi 404 - Không Tìm thấy tài nguyên
